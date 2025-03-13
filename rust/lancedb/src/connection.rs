@@ -9,7 +9,6 @@ use std::sync::Arc;
 use arrow_array::RecordBatchReader;
 use arrow_schema::{Field, SchemaRef};
 use lance::dataset::ReadParams;
-use object_store::aws::AwsCredential;
 
 use crate::arrow::{IntoArrow, IntoArrowStream, SendableRecordBatchStream};
 use crate::catalog::listing::ListingCatalog;
@@ -702,23 +701,6 @@ impl ConnectBuilder {
     /// Provide a custom [`EmbeddingRegistry`] to use for this connection.
     pub fn embedding_registry(mut self, registry: Arc<dyn EmbeddingRegistry>) -> Self {
         self.embedding_registry = Some(registry);
-        self
-    }
-
-    /// [`AwsCredential`] to use when connecting to S3.
-    #[deprecated(note = "Pass through storage_options instead")]
-    pub fn aws_creds(mut self, aws_creds: AwsCredential) -> Self {
-        self.request
-            .storage_options
-            .insert("aws_access_key_id".into(), aws_creds.key_id.clone());
-        self.request
-            .storage_options
-            .insert("aws_secret_access_key".into(), aws_creds.secret_key.clone());
-        if let Some(token) = &aws_creds.token {
-            self.request
-                .storage_options
-                .insert("aws_session_token".into(), token.clone());
-        }
         self
     }
 
